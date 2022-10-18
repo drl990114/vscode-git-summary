@@ -1,1 +1,1 @@
-# vscode-git-summarizer
+# vscode-git-summary

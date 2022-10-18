@@ -1,15 +1,17 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2020",
-		"lib": ["es2020"],
+		"target": "es2017",
+    "module": "CommonJS",
+    "lib": ["esnext","DOM"],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
 		"outDir": "out",
 		"sourceMap": true,
-		"strict": true,
 		"rootDir": "src"
-	},
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	]
+	}
 }
