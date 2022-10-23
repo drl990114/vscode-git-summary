@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import gitDiffParser from 'gitdiff-parser'
 import { API, GitExtension, RefType } from './types/git'
+import TreeDataProvider from './tree'
 
 let myStatusBarItem: vscode.StatusBarItem
 
@@ -8,12 +9,43 @@ export async function activate(ctx: vscode.ExtensionContext) {
   const { subscriptions } = ctx
   // register a command that is invoked when the status bar
   // item is selected
-  const orange = vscode.window.createOutputChannel('Orange')
-  orange.appendLine('I am a banana.')
   console.log('vscode.window', vscode.window)
   // getGitApi
   const gitApi = await getGitApi()
   console.log('gitApi.repositories', gitApi.repositories)
+
+  const provider = new TreeDataProvider(ctx)
+  vscode.window.registerTreeDataProvider('git-summary', provider)
+
+  function refresh() {
+    provider.clear()
+
+    let root = vscode.workspace.getConfiguration('git-summary').rootFolder
+    if (root === '') {
+      if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+        root = vscode.workspace.workspaceFolders[0].uri.fsPath
+      } else {
+        return
+      }
+    }
+
+    // TODO git diff root and provider.add(root, match)
+  }
+
+  vscode.commands.registerCommand('git-summary.reveal', (file, line) => {
+    vscode.workspace.openTextDocument(file).then(function (document) {
+      vscode.window.showTextDocument(document).then(function (editor) {
+        const position = new vscode.Position(line, 0)
+        editor.selection = new vscode.Selection(position, position)
+        editor.revealRange(editor.selection, vscode.TextEditorRevealType.Default)
+        vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup')
+      })
+    })
+  })
+
+  ctx.subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refresh))
+
+  refresh()
 
   const repos = gitApi.repositories
   if (repos[0]) {
@@ -23,7 +55,8 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const rootUrl = repos[0].rootUri.path
         const targetUrl = activeTextEditor.document.uri.path
         const p = targetUrl.substring(rootUrl.length + 1)
-        repos[0].diffWith(repos[0].state.refs[0].name || '', p).then((res) => {
+        repos[0].diff().then((res) => {
+          // repos[0].diffWith(repos[0].state.refs[0].name || '', p).then((res) => {
           if (res.length === 0) {
             // no change
           } else {
@@ -31,29 +64,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
           }
         })
       }
-
-      console.log('onDidChangeActiveTextEditor', args)
     })
   }
-  console.log('ctx', ctx)
   const myCommandId = 'git.summary'
-  subscriptions.push(
-    vscode.commands.registerCommand(myCommandId, () => {
-      const quickPick = vscode.window.createQuickPick()
-      quickPick.items = [
-        {
-          label: 'test',
-        },
-        {
-          label: 'test1',
-        },
-      ]
-      quickPick.onDidChangeSelection((e) => {
-        console.log('change', e)
-      })
-      quickPick.show()
-    })
-  )
   // create a new status bar item that we can now manage
   myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
   myStatusBarItem.command = myCommandId
