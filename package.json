@@ -34,10 +34,10 @@
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
 		"eslint": "^8.13.0",
-		"typescript": "^4.8.4"
+		"typescript": "^4.8.4",
+		"@types/node": "^18.11.3"
 	},
 	"dependencies": {
-		"@types/node": "^18.11.3",
 		"gitdiff-parser": "^0.2.2"
 	},
 	"contributes": {

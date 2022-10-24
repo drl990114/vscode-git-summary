@@ -4,6 +4,7 @@ import { API, GitExtension, RefType } from './types/git'
 import TreeDataProvider from './tree'
 
 let myStatusBarItem: vscode.StatusBarItem
+let provider: TreeDataProvider
 
 export async function activate(ctx: vscode.ExtensionContext) {
   const { subscriptions } = ctx
@@ -14,10 +15,10 @@ export async function activate(ctx: vscode.ExtensionContext) {
   const gitApi = await getGitApi()
   console.log('gitApi.repositories', gitApi.repositories)
 
-  const provider = new TreeDataProvider(ctx)
+  provider = new TreeDataProvider(ctx)
   vscode.window.registerTreeDataProvider('git-summary', provider)
 
-  function refresh() {
+  function refreshTree() {
     provider.clear()
 
     let root = vscode.workspace.getConfiguration('git-summary').rootFolder
@@ -28,8 +29,19 @@ export async function activate(ctx: vscode.ExtensionContext) {
         return
       }
     }
+    const repos = gitApi.repositories
 
     // TODO git diff root and provider.add(root, match)
+    repos[0]?.diff().then((res) => {
+      if (res.length === 0) {
+        // no change
+      } else {
+        const diffList = gitDiffParser.parse(res)
+
+        diffList.forEach((d) => provider.add(root, d))
+        console.log('diff-----------', diffList, root)
+      }
+    })
   }
 
   vscode.commands.registerCommand('git-summary.reveal', (file, line) => {
@@ -43,9 +55,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
     })
   })
 
-  ctx.subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refresh))
+  ctx.subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refreshTree))
 
-  refresh()
+  refreshTree()
 
   const repos = gitApi.repositories
   if (repos[0]) {

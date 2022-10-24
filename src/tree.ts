@@ -1,15 +1,17 @@
+import { File } from 'gitdiff-parser'
 import * as vscode from 'vscode'
 import path from 'path'
+import { handleHunkName } from './tool'
 
 let elements: any[] = []
 
-const PATH = 'path'
+const FILE = 'file'
 const SUMMARY = 'summary'
 
 class TreeDataProvider {
   _context: vscode.ExtensionContext
   _onDidChangeTreeData: vscode.EventEmitter<unknown>
-  onDidChangeTreeData: any
+  onDidChangeTreeData: vscode.Event<any>
   constructor(_context: vscode.ExtensionContext) {
     this._context = _context
 
@@ -18,33 +20,33 @@ class TreeDataProvider {
   }
 
   getChildren(element: any) {
+    console.log('getChildren', element)
+
     if (!element) {
       if (elements.length > 0) {
         return elements
       }
       return [{ name: 'Nothing found' }]
-    } else if (element.type === PATH) {
-      if (element.elements && element.elements.length > 0) {
-        return element.elements
-      } else {
-        return element.hunks
-      }
+    } else if (element.type === FILE) {
+      return element.hunks
     } else if (element.type === SUMMARY) {
-      return element.text
+      return element.name
     }
   }
 
   getTreeItem(element: any) {
+    console.log('getTreeItem', element)
+
     const treeItem = new vscode.TreeItem(element.name)
     treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None
 
-    if (element.type === PATH) {
+    if (element.type === FILE) {
       treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
     } else if (element.type === SUMMARY) {
       treeItem.command = {
         command: 'git-summary.reveal',
         title: '',
-        arguments: [element.file, element.line],
+        arguments: [element.filePath, element.line],
       }
     }
 
@@ -53,49 +55,30 @@ class TreeDataProvider {
 
   clear() {
     elements = []
-    this._onDidChangeTreeData.fire()
+    this._onDidChangeTreeData.fire(this.onDidChangeTreeData)
   }
 
-  add(root: any, match: any) {
-    const parts = match.file.split(path.sep)
-
-    function findSubPath(e) {
-      return e.type === PATH && e.name === this
-    }
-
-    let pathElement: any
-    let parent = elements
-    parts.map(function (p) {
-      const child = parent.find(findSubPath, p)
-      if (!child) {
-        pathElement = {
-          type: PATH,
-          name: p,
-          elements: [],
-          hunks: [],
+  add(root: any, match: File) {
+    const filePath = path.join(root, match.oldPath)
+    elements.push({
+      ...match,
+      type: FILE,
+      name: match.oldPath,
+      hunks: match.hunks.map((hunk) => {
+        return {
+          ...hunk,
+          type: SUMMARY,
+          name: handleHunkName(hunk),
+          filePath,
+          line: hunk.newStart
         }
-        parent.push(pathElement)
-        parent = pathElement.elements
-      } else {
-        pathElement = child
-        parent = pathElement.elements
-      }
+      }),
     })
-
-    const diffElement = {
-      type: SUMMARY,
-      name: match.match.substr(match.column - 1),
-      line: match.line - 1,
-      file: path.join(root, match.file),
-    }
-
-    pathElement.hunks.push(diffElement)
-
-    this._onDidChangeTreeData.fire()
+    this._onDidChangeTreeData.fire(this.onDidChangeTreeData)
   }
 
   refresh(html: any) {
-    this._onDidChangeTreeData.fire()
+    this._onDidChangeTreeData.fire(this.onDidChangeTreeData)
   }
 }
 

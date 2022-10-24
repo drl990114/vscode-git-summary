@@ -1,9 +1,24 @@
-export function getNonce() {
-  let text = ''
-  const possible =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length))
+import { Hunk } from 'gitdiff-parser'
+
+export function handleHunkName(hunk: Hunk) {
+  const {addLines , deleteLines} = getDiffHunkLines(hunk)
+  return `${deleteLines}-+${addLines}`
+}
+
+function getDiffHunkLines(hunk: Hunk) {
+  let addLines = 0
+  let deleteLines = 0
+
+  hunk.changes.forEach((change) => {
+    if (change.type === 'insert') {
+      ++addLines
+    } else if (change.type === 'delete') {
+      ++deleteLines
+    }
+  })
+
+  return {
+    addLines,
+    deleteLines,
   }
-  return text
 }
