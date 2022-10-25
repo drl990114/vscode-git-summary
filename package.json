@@ -51,6 +51,15 @@
 				}
 			]
 		},
+		"menus": {
+      "view/title": [
+        {
+          "command": "git-summary.refresh",
+          "when": "view == git-summary",
+          "group": "navigation"
+        }
+      ]
+    },
 		"commands": [
       {
         "command": "git-summary.refresh",

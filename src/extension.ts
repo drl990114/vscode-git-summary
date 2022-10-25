@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import gitDiffParser from 'gitdiff-parser'
-import { API, GitExtension, RefType } from './types/git'
+import { API, GitExtension } from './types/git'
 import TreeDataProvider from './tree'
 
 let myStatusBarItem: vscode.StatusBarItem
@@ -20,7 +20,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
   function refreshTree() {
     provider.clear()
-
     let root = vscode.workspace.getConfiguration('git-summary').rootFolder
     if (root === '') {
       if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
@@ -31,7 +30,6 @@ export async function activate(ctx: vscode.ExtensionContext) {
     }
     const repos = gitApi.repositories
 
-    // TODO git diff root and provider.add(root, match)
     repos[0]?.diff().then((res) => {
       if (res.length === 0) {
         // no change
@@ -78,14 +76,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
       }
     })
   }
-  const myCommandId = 'git.summary'
-  // create a new status bar item that we can now manage
-  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
-  myStatusBarItem.command = myCommandId
-  subscriptions.push(myStatusBarItem)
 
-  // register some listener that make sure the status bar
-  // item always up-to-date
+  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
+  subscriptions.push(myStatusBarItem)
   subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem))
   subscriptions.push(vscode.window.onDidChangeTextEditorSelection(updateStatusBarItem))
   subscriptions.push(vscode.window.onDidChangeActiveNotebookEditor(updateStatusBarItem))
