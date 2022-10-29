@@ -1,7 +1,8 @@
-import { File, Hunk } from 'gitdiff-parser'
 import * as vscode from 'vscode'
-import path from 'path'
+import type { File } from 'gitdiff-parser'
 import { getDiffHunkDesc } from './tool'
+
+import path from 'path'
 import { ElType } from './types/main'
 
 let elements: any[] = []
@@ -22,9 +23,11 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
         return elements
       }
       return [{ name: 'Nothing found' }]
-    } else if (element.type === ElType.FILE) {
+    }
+ else if (element.type === ElType.FILE) {
       return element.hunks
-    } else if (element.type === ElType.SUMMARY) {
+    }
+ else if (element.type === ElType.SUMMARY) {
       return element.name
     }
   }
@@ -34,7 +37,8 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None
     if (element.type === ElType.FILE) {
       treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
-    } else if (element.type === ElType.SUMMARY) {
+    }
+ else if (element.type === ElType.SUMMARY) {
       treeItem.command = {
         command: 'git-summary.reveal',
         title: '',

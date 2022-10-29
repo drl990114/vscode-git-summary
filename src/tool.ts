@@ -1,4 +1,4 @@
-import { Hunk, File } from 'gitdiff-parser'
+import type { File, Hunk } from 'gitdiff-parser'
 import type { ChangeSummary } from './types/main'
 
 export function getDiffSummaryDesc(summary: ChangeSummary) {
@@ -33,7 +33,8 @@ export function getDiffHunkLines(hunk: Hunk): ChangeSummary {
   hunk.changes.forEach((change) => {
     if (change.type === 'insert') {
       ++addLines
-    } else if (change.type === 'delete') {
+    }
+    else if (change.type === 'delete') {
       ++deleteLines
     }
   })

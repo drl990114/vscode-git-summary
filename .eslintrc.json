@@ -4,8 +4,46 @@
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
   "rules": {
+    // TS
+    "@typescript-eslint/ban-ts-comment": ["error", { "ts-ignore": "allow-with-description" }],
+    "@typescript-eslint/member-delimiter-style": ["error", { "multiline": { "delimiter": "none" } }],
+    "@typescript-eslint/type-annotation-spacing": ["error", {}],
+    "@typescript-eslint/consistent-type-imports": ["error", { "prefer": "type-imports", "disallowTypeAnnotations": false }],
+    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+    "@typescript-eslint/prefer-ts-expect-error": "error",
+    "@typescript-eslint/no-redeclare": "error",
+    "@typescript-eslint/no-use-before-define": ["error", { "functions": false, "classes": false, "variables": true }],
+    "@typescript-eslint/brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+    "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/object-curly-spacing": ["error", "always"],
+    "@typescript-eslint/space-before-blocks": ["error", "always"],
+    "@typescript-eslint/space-before-function-paren": [
+      "error",
+      {
+        "anonymous": "always",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "@typescript-eslint/space-infix-ops": "error",
+    "@typescript-eslint/keyword-spacing": ["error", { "before": true, "after": true }],
+    "@typescript-eslint/comma-spacing": ["error", { "before": false, "after": true }],
+    "@typescript-eslint/no-extra-parens": ["error", "functions"],
+    "@typescript-eslint/no-dupe-class-members": "error",
+    "@typescript-eslint/no-loss-of-precision": "error",
+    "@typescript-eslint/lines-between-class-members": ["error", "always", { "exceptAfterSingleLine": true }],
+
     "quotes": [2, "single"],
     "semi": [2, "never"],
+    "sort-imports": [
+      "error",
+      {
+        "ignoreCase": false,
+        "ignoreDeclarationSort": true,
+        "ignoreMemberSort": false,
+        "memberSyntaxSortOrder": ["none", "all", "single", "multiple"]
+      }
+    ],
     "@typescript-eslint/no-unused-vars": 0,
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/explicit-module-boundary-types": 0,
