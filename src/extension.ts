@@ -1,20 +1,15 @@
 import * as vscode from 'vscode'
 import gitDiffParser from 'gitdiff-parser'
 import { API, GitExtension } from './types/git'
-import TreeDataProvider from './tree'
+import TreeDataProvider, { getElementByName } from './tree'
+import { getDiffFileLines, getDiffSummaryDesc } from './tool'
 
-let myStatusBarItem: vscode.StatusBarItem
+let statusBarItem: vscode.StatusBarItem
 let provider: TreeDataProvider
 
 export async function activate(ctx: vscode.ExtensionContext) {
   const { subscriptions } = ctx
-  // register a command that is invoked when the status bar
-  // item is selected
-  console.log('vscode.window', vscode.window)
-  // getGitApi
   const gitApi = await getGitApi()
-  console.log('gitApi.repositories', gitApi.repositories)
-
   provider = new TreeDataProvider(ctx)
   vscode.window.registerTreeDataProvider('git-summary', provider)
 
@@ -30,6 +25,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
     }
     const repos = gitApi.repositories
 
+
     repos[0]?.diff().then((res) => {
       if (res.length === 0) {
         // no change
@@ -37,6 +33,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const diffList = gitDiffParser.parse(res)
 
         diffList.forEach((d) => provider.add(root, d))
+        updateStatusBarItem()
         console.log('diff-----------', diffList, root)
       }
     })
@@ -55,40 +52,35 @@ export async function activate(ctx: vscode.ExtensionContext) {
 
   ctx.subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refreshTree))
 
-  refreshTree()
-
-  const repos = gitApi.repositories
-  if (repos[0]) {
-    vscode.window.onDidChangeActiveTextEditor((...args) => {
-      const activeTextEditor = vscode.window.activeTextEditor
-      if (activeTextEditor) {
-        const rootUrl = repos[0].rootUri.path
-        const targetUrl = activeTextEditor.document.uri.path
-        const p = targetUrl.substring(rootUrl.length + 1)
-        repos[0].diff().then((res) => {
-          // repos[0].diffWith(repos[0].state.refs[0].name || '', p).then((res) => {
-          if (res.length === 0) {
-            // no change
-          } else {
-            console.log('diff', gitDiffParser.parse(res), typeof res)
-          }
-        })
-      }
-    })
-  }
-
-  myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
-  subscriptions.push(myStatusBarItem)
+  statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
+  subscriptions.push(statusBarItem)
   subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem))
   subscriptions.push(vscode.window.onDidChangeTextEditorSelection(updateStatusBarItem))
   subscriptions.push(vscode.window.onDidChangeActiveNotebookEditor(updateStatusBarItem))
-  // update status bar item once at start
-  updateStatusBarItem()
+
+  refreshTree()
 }
 
-function updateStatusBarItem(): void {
-  myStatusBarItem.text = '$(megaphone) git-summary'
-  myStatusBarItem.show()
+async function updateStatusBarItem(): Promise<void> {
+  const gitApi = await getGitApi()
+  const repos = gitApi.repositories
+  if (repos[0]) {
+    const activeTextEditor = vscode.window.activeTextEditor
+    if (activeTextEditor) {
+      const rootUrl = repos[0].rootUri.path
+      const targetUrl = activeTextEditor.document.uri.path
+      const p = targetUrl.substring(rootUrl.length + 1)
+      const el = getElementByName(p)
+      if(el) {
+        const changeLines = getDiffFileLines(el)
+        statusBarItem.text = `$(megaphone) ${changeLines ? getDiffSummaryDesc(changeLines) : 'nochange'}`
+      }else {
+        statusBarItem.text = '$(megaphone) untracked'
+      }
+      
+      statusBarItem.show()
+    }
+  }
 }
 
 const getGitApi = (): Promise<API> => {

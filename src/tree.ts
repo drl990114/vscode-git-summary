@@ -1,7 +1,7 @@
 import { File, Hunk } from 'gitdiff-parser'
 import * as vscode from 'vscode'
 import path from 'path'
-import { handleHunkName } from './tool'
+import { getDiffHunkDesc } from './tool'
 import { ElType } from './types/main'
 
 let elements: any[] = []
@@ -17,7 +17,6 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   }
 
   getChildren(element: any) {
-    console.log('getChildren', element)
     if (!element) {
       if (elements.length > 0) {
         return elements
@@ -31,7 +30,6 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   }
 
   getTreeItem(element: any): vscode.TreeItem {
-    console.log('getTreeItem', element)
     const treeItem = new vscode.TreeItem(element.name)
     treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None
     if (element.type === ElType.FILE) {
@@ -62,7 +60,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
         return {
           ...hunk,
           type: ElType.SUMMARY,
-          name: handleHunkName(hunk),
+          name: getDiffHunkDesc((hunk)),
           filePath,
           line: hunk.newStart,
         }
@@ -74,6 +72,10 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   refresh() {
     this._onDidChangeTreeData.fire()
   }
+}
+
+export function getElementByName(name: string) {
+  return elements.find((el) => el.name === name)
 }
 
 export default TreeDataProvider
