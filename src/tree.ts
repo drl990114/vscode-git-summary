@@ -5,6 +5,7 @@ import { getDiffHunkDesc } from './tool'
 import path from 'path'
 import { ElType } from './types/main'
 
+// TODO Supplemental Type Definition
 let elements: any[] = []
 class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   _context: vscode.ExtensionContext

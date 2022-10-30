@@ -1,5 +1,30 @@
+import * as vscode from 'vscode'
 import type { File, Hunk } from 'gitdiff-parser'
 import type { ChangeSummary } from './types/main'
+import type { API, GitExtension } from './types/git'
+
+export function getGitApi(): Promise<API> {
+  return new Promise((resolve) => {
+    const fn = async () => {
+      const extensions = vscode.extensions
+      const gtiExtension = extensions.getExtension<GitExtension>('vscode.git')
+      if (!gtiExtension?.isActive) {
+        await gtiExtension?.activate()
+      }
+      const api = gtiExtension!.exports.getAPI(1)
+      // Wait for the API to get initialized.
+      api.onDidChangeState(() => {
+        if (api.state === 'initialized') {
+          resolve(api)
+        }
+      })
+      if (api.state === 'initialized') {
+        resolve(api)
+      }
+    }
+    fn()
+  })
+}
 
 export function getDiffSummaryDesc(summary: ChangeSummary) {
   const { addLines, deleteLines } = summary

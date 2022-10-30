@@ -1,6 +1,7 @@
+
 export type Nullable<T> = T | null | undefined
 
-export type ChangeSummary = {
+export interface ChangeSummary {
   addLines: number
   deleteLines: number
 }
