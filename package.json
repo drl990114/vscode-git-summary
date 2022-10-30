@@ -1,6 +1,6 @@
 {
 	"name": "vscode-git-summary",
-	"displayName": "Git summary",
+	"displayName": "Git Summary",
 	"description": "Shows the number of git changed lines in the status bar",
 	"version": "0.0.1",
 	"publisher": "halodong",
