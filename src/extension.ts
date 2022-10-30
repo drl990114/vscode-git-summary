@@ -47,6 +47,8 @@ export async function activate(ctx: vscode.ExtensionContext) {
       })
     })
   })
+  const repos = gitApi.repositories
+  subscriptions.push( repos[0].state.onDidChange(refreshTree))
   subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refreshTree))
   subscriptions.push(vscode.workspace.onDidSaveTextDocument(refreshTree))
   refreshTree()
@@ -54,8 +56,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
   subscriptions.push(statusBarItem)
   subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem))
-  subscriptions.push(vscode.window.onDidChangeTextEditorSelection(updateStatusBarItem))
-  subscriptions.push(vscode.window.onDidChangeActiveNotebookEditor(updateStatusBarItem))
+
 }
 
 async function updateStatusBarItem(): Promise<void> {
