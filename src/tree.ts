@@ -23,11 +23,9 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
         return elements
       }
       return [{ name: 'Nothing found' }]
-    }
- else if (element.type === ElType.FILE) {
+    } else if (element.type === ElType.FILE) {
       return element.hunks
-    }
- else if (element.type === ElType.SUMMARY) {
+    } else if (element.type === ElType.SUMMARY) {
       return element.name
     }
   }
@@ -37,8 +35,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
     treeItem.collapsibleState = vscode.TreeItemCollapsibleState.None
     if (element.type === ElType.FILE) {
       treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
-    }
- else if (element.type === ElType.SUMMARY) {
+    } else if (element.type === ElType.SUMMARY) {
       treeItem.command = {
         command: 'git-summary.reveal',
         title: '',
@@ -64,7 +61,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
         return {
           ...hunk,
           type: ElType.SUMMARY,
-          name: getDiffHunkDesc((hunk)),
+          name: getDiffHunkDesc(hunk),
           filePath,
           line: hunk.newStart,
         }
