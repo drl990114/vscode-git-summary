@@ -76,8 +76,10 @@ class TreeDataProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
   }
 }
 
-export function getElementByName(name: string) {
+export const getElementByName = (name: string) => {
   return elements.find((el) => el.name === name)
 }
+
+export const getElements = () => elements
 
 export default TreeDataProvider

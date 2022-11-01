@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import gitDiffParser from 'gitdiff-parser'
-import TreeDataProvider, { getElementByName } from './tree'
+import TreeDataProvider, { getElementByName, getElements } from './tree'
 import { getDiffFileLines, getDiffSummaryDesc, getGitApi } from './tool'
 
 let statusBarItem: vscode.StatusBarItem
@@ -69,12 +69,18 @@ async function updateStatusBarItem(): Promise<void> {
       const rootUrl = repos[0].rootUri.path
       const targetUrl = activeTextEditor.document.uri.path
       const p = targetUrl.substring(rootUrl.length + 1)
-      const el = getElementByName(p)
-      if (el) {
-        const changeLines = getDiffFileLines(el)
-        statusBarItem.text = `$(megaphone) ${changeLines ? getDiffSummaryDesc(changeLines) : 'nochange'}`
+
+      const els = getElements()
+      if (els.length === 0) {
+        statusBarItem.text = '$(megaphone) diff no change'
       } else {
-        statusBarItem.text = '$(megaphone) untracked'
+        const el = getElementByName(p)
+        if (el) {
+          const changeLines = getDiffFileLines(el)
+          statusBarItem.text = `$(megaphone) ${getDiffSummaryDesc(changeLines)}`
+        } else {
+          statusBarItem.text = '$(megaphone) untracked'
+        }
       }
 
       statusBarItem.show()

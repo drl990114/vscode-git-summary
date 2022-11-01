@@ -2,7 +2,7 @@
   "name": "vscode-git-summary",
   "displayName": "Git Summary",
   "description": "Shows the number of git changed lines in the status bar",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "halodong",
   "private": true,
   "license": "MIT",
