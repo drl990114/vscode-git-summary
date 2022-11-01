@@ -12,6 +12,7 @@ export async function activate(ctx: vscode.ExtensionContext) {
   provider = new TreeDataProvider(ctx)
   vscode.window.registerTreeDataProvider('git-summary', provider)
 
+  console.log('vscode-git-summary is active!')
   function refreshTree() {
     provider.clear()
     let root = vscode.workspace.getConfiguration('git-summary').rootFolder
@@ -48,15 +49,15 @@ export async function activate(ctx: vscode.ExtensionContext) {
     })
   })
   const repos = gitApi.repositories
-  subscriptions.push( repos[0].state.onDidChange(refreshTree))
+  if (repos[0]) {
+    subscriptions.push(repos[0].state.onDidChange(refreshTree))
+  }
   subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refreshTree))
   subscriptions.push(vscode.workspace.onDidSaveTextDocument(refreshTree))
   refreshTree()
 
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
-  subscriptions.push(statusBarItem)
   subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem))
-
 }
 
 async function updateStatusBarItem(): Promise<void> {

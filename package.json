@@ -2,8 +2,7 @@
   "name": "vscode-git-summary",
   "displayName": "Git Summary",
   "description": "Shows the number of git changed lines in the status bar",
-  "version": "0.0.5",
-  "type": "module",
+  "version": "0.0.6",
   "publisher": "halodong",
   "private": true,
   "license": "MIT",
@@ -23,11 +22,12 @@
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "rollup -c",
+    "compile": "rollup -c --bundleConfigAsCjs",
     "lint": "eslint . --ext .ts,.tsx",
-    "watch": "rollup -cw --environment TARGET:src"
+    "watch": "rollup -cw --bundleConfigAsCjs --environment TARGET:src"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^23.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
     "@types/node": "^18.11.3",
     "@types/vscode": "^1.32.0",
@@ -42,8 +42,7 @@
     "gitdiff-parser": "^0.2.2"
   },
   "activationEvents": [
-    "onCommand:git-summary.refresh",
-    "onCommand:git-summary.reveal"
+    "*"
   ],
   "contributes": {
     "views": {
