@@ -32,9 +32,9 @@ export async function activate(ctx: vscode.ExtensionContext) {
         const diffList = gitDiffParser.parse(res)
 
         diffList.forEach((d) => provider.add(root, d))
-        updateStatusBarItem()
         console.log('diff-----------', diffList, root)
       }
+      updateStatusBarItem()
     })
   }
 
