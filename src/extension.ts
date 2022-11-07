@@ -1,18 +1,24 @@
 import * as vscode from 'vscode'
 import gitDiffParser from 'gitdiff-parser'
-import TreeDataProvider, { getElementByName, getElements } from './tree'
+import TreeDataProvider, { getElementByName, getElements, handleSummaryCommand } from './tree'
 import { getDiffFileLines, getDiffSummaryDesc, getGitApi } from './tool'
 
 let statusBarItem: vscode.StatusBarItem
-let provider: TreeDataProvider
+export let provider: TreeDataProvider
+
+enum Commands {
+  summary = 'git-summary',
+  refresh = 'git-summary.refresh',
+}
 
 export async function activate(ctx: vscode.ExtensionContext) {
+  console.log('vscode-git-summary is active!')
+
   const { subscriptions } = ctx
   const gitApi = await getGitApi()
   provider = new TreeDataProvider(ctx)
   vscode.window.registerTreeDataProvider('git-summary', provider)
 
-  console.log('vscode-git-summary is active!')
   function refreshTree() {
     provider.clear()
     let root = vscode.workspace.getConfiguration('git-summary').rootFolder
@@ -52,11 +58,13 @@ export async function activate(ctx: vscode.ExtensionContext) {
   if (repos[0]) {
     subscriptions.push(repos[0].state.onDidChange(refreshTree))
   }
-  subscriptions.push(vscode.commands.registerCommand('git-summary.refresh', refreshTree))
+  subscriptions.push(vscode.commands.registerCommand(Commands.refresh, refreshTree))
   subscriptions.push(vscode.workspace.onDidSaveTextDocument(refreshTree))
   refreshTree()
 
   statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 10000)
+  statusBarItem.command = Commands.summary
+  subscriptions.push(vscode.commands.registerCommand(Commands.summary, handleSummaryCommand))
   subscriptions.push(vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem))
 }
 

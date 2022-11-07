@@ -4,6 +4,7 @@ import { getDiffHunkDesc } from './tool'
 
 import path from 'path'
 import { ElType } from './types/main'
+import { provider } from './extension'
 
 // TODO Supplemental Type Definition
 let elements: any[] = []
@@ -81,5 +82,9 @@ export const getElementByName = (name: string) => {
 }
 
 export const getElements = () => elements
+
+export const handleSummaryCommand = () => {
+  vscode.commands.executeCommand('git-summary.focus')
+}
 
 export default TreeDataProvider
